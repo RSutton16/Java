@@ -1,1 +1,1 @@
-# Java
+This repo is for small java projects to just showcase skills in java. Everything is original but can be influenced by tutorials online. I understand 100 percent of the things I have coded on this repo.
