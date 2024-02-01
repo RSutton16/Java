@@ -48,16 +48,17 @@ public class Panel extends JPanel {
 		this.add(button);
 
 	}
-public void makeLabel(String text, int size, int x, int y, int width, int height, Color backColor, Color textColor,boolean backgroundVisible){
-JLabel label = new JLabel();
-button.setText(text);
+	
+	public void makeLabel(String text, int size, int x, int y, int width, int height, Color backColor, Color textColor,boolean backgroundVisible){
+		JLabel label = new JLabel();
+		button.setText(text);
 		label.setBounds(x, y, width, height);
 		label.setFont(new Font("Times New Roman", Font.BOLD, size));
 		label.setBackground(backColor);
 		label.setForeground(textColor);
-  label.setOpaque(backgroundVisible);
+		label.setOpaque(backgroundVisible);
 		this.add(label);
-}
+	}
 
 	public void clearScreen() {
 		this.removeAll();
