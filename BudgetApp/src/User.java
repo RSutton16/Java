@@ -2,22 +2,26 @@ import java.util.ArrayList;
 
 public class User {
 	User(String fn, String ln){
-		Panel.userList.add(this);
+		Panel1.userList.add(this);
 		this.firstName = fn;
 		this.lastName = ln;
 	}
+	
+	int incomePerWeek = 0;
+	int outcomePerWeek = 0;
 	String firstName;
 	String lastName;
 	
 	ArrayList<Amount> expenses = new ArrayList<>();
 	ArrayList<Amount> income = new ArrayList<>();
 
-	public void newIncome() {
+	public void newIncome(int amount, String name, String discip) {
 		
-		//income.add(new Amount(name, amount, discip));
+		income.add(new Amount(name, amount, discip));
+		System.out.println(income.get(0).name);
 	}
 	
-	public void removeIncome(Panel panel) {
+	public void removeIncome(String name) {
 		
 	}
 	
