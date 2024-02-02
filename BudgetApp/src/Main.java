@@ -2,10 +2,7 @@
 public class Main {
 	
 	public static void main(String[] args) {
-		User john = new User("John", "Doe");
-		User eli = new User("Eli", "Gay");
-
-
+		User user = new User("Default", "User");
 		new Frame();
 	}
 }

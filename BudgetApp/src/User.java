@@ -7,26 +7,46 @@ public class User {
 		this.lastName = ln;
 	}
 	
-	int incomePerWeek = 0;
-	int outcomePerWeek = 0;
+	double incomePerWeek = 0;
+	double outcomePerWeek = 0;
 	String firstName;
 	String lastName;
 	
-	ArrayList<Amount> expenses = new ArrayList<>();
+	ArrayList<Amount> outcome = new ArrayList<>();
 	ArrayList<Amount> income = new ArrayList<>();
 
-	public void newIncome(int amount, String name, String discip) {
-		
+
+	public void calcIncome(){
+		double tempAmount = 0;
+		for(Amount incomeAmount : income){
+			tempAmount += incomeAmount.amount;
+			System.out.println(incomeAmount.name + ": " + incomeAmount.amount);
+		}
+		incomePerWeek = tempAmount;
+	}
+
+	public void calcOutcome(){
+		double tempAmount = 0;
+		for(Amount outcomeAmount : outcome){
+			tempAmount += outcomeAmount.amount;
+			System.out.println(outcomeAmount.name + ": " + outcomeAmount.amount);
+		}
+		outcomePerWeek = tempAmount;
+	}
+	public void newIncome(String name, int amount, String discip) {
 		income.add(new Amount(name, amount, discip));
-		System.out.println(income.get(0).name);
+		calcIncome();
+		System.out.println("Income Total: " + incomePerWeek);
 	}
 	
-	public void removeIncome(String name) {
-		
+	public void removeIncome(Amount amount) {
+		income.remove(amount);
+		calcIncome();
 	}
 	
 	public void clearIncome() {
-		
+		income.clear();
+		calcIncome();
 	}
 	
 	public void viewAllIncome() {
@@ -35,17 +55,28 @@ public class User {
 		}
 	}
 	
-	public void newExpenses(String name, double amount, String discip) {
-		expenses.add(new Amount(name, amount, discip));
+	public void addOutcome(String name, double amount, String discip) {
+		outcome.add(new Amount(name, amount, discip));
+		calcOutcome();
+		System.out.println("Outcome Total: " + outcomePerWeek);
 	}
 	
-	public void viewAllExpenses() {
+	public void removeOutcome(Amount amount){
+		outcome.remove(amount);
+		calcOutcome();
+	}
+	public void viewOutcome() {
 		double totalOutcome= 0;
-		for(Amount expenses: expenses) {
+		for(Amount expenses: outcome) {
 			System.out.println(expenses.name + ": " +expenses.amount);
 			totalOutcome += expenses.amount;
 		}
 		System.out.println("Total: " + totalOutcome);
+	}
+
+	public void clearOutcome(){
+		outcome.clear();
+		calcOutcome();
 	}
 	
 	public void changeName(String fn, String ln) {
