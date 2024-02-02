@@ -32,6 +32,10 @@ public class User {
 			System.out.println(outcomeAmount.name + ": " + outcomeAmount.amount);
 		}
 		outcomePerWeek = tempAmount;
+		
+		double userShareInHouse =  Panel1.householdOutcomePerWeek/ Panel1.userList.size();
+		System.out.println(userShareInHouse);
+		outcomePerWeek += userShareInHouse;
 	}
 	public void newIncome(String name, int amount, String discip) {
 		income.add(new Amount(name, amount, discip));

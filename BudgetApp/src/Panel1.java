@@ -2,11 +2,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,6 +15,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -30,9 +29,9 @@ public class Panel1 extends JPanel {
 	public Map<String, JLabel> labelList = new HashMap<>();
 
 
-	ArrayList<Amount> houseOutcome = new ArrayList<>();
+	public ArrayList<Amount> houseOutcome = new ArrayList<>();
 
-	double householdOutcomePerWeek = 0;
+	public static double householdOutcomePerWeek = 0;
 	User currentUser = userList.get(0);
 	JButton currentButtonPress = null;
 	String currentPage = " ";
@@ -62,8 +61,9 @@ public class Panel1 extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-			g.drawImage(loadImage("RRRStudi.png"), 300, 50, 400, 400, null);
+		g.setColor(Color.black);
+			g.fillRect(0, 0, this.getWidth(), this.getHeight());
+			g.drawImage(loadImage("RRRPixel.png"), 300, 50, 400, 400, null);
 		
 	}
 
@@ -101,7 +101,6 @@ public class Panel1 extends JPanel {
 		label.setBackground(backColor);
 		label.setForeground(textColor);
 		label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-
 		label.setOpaque(backgroundVisible);
 		labelList.put(text, label);
 		this.add(label);
@@ -122,8 +121,26 @@ public class Panel1 extends JPanel {
 		this.removeAll();
 		this.repaint();
 		this.setLayout(man);
-		System.out.println(currentUser.firstName + " " + currentUser.lastName);
-		System.out.println(currentUser.incomePerWeek);
+		calcHouseOut();
+		int defUser = 0;
+		boolean isDefUser = false;
+		for(User user : userList){
+			if(user.firstName == "Default"){
+				defUser = userList.indexOf(user);
+				isDefUser = true;
+			}
+		}
+		
+		if(userList.size() < 1){
+			currentUser = new User("Default", "User");
+		} else if(isDefUser && userList.size() > 1){
+			//gets rid of default user if there is another profile
+			userList.remove(userList.remove(defUser));
+		}
+		if(!userList.contains(currentUser)){
+			currentUser = userList.get(0);
+		}
+		
 	}
 
 	public void homeScreen() {
@@ -141,6 +158,8 @@ public class Panel1 extends JPanel {
 		outcomePanel();
 		housePanel();
 		currentUserPanel();
+		currentUserIncomeTotal();
+		currentUserOutcomeTotal();
 
 		makeButton("New User", 15, 890, 10, buttonSize, buttonSize, e -> newUser());
 		makeButton("Pick User", 15, 890, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> chooseUser());
@@ -150,11 +169,17 @@ public class Panel1 extends JPanel {
 		makeButton("Income", 15, 795, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> addIncome());
 		makeButton("Outcome", 15, 795,  10 + buttonSize * 2 + sepAmo * 2, buttonSize, buttonSize, e -> addOutcome());
 		makeButton("House", 15, 795, 10+ buttonSize * 3 + sepAmo * 3, buttonSize, buttonSize, e -> addHouse());
-		
 	}
 
 	
 
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 	public void newUser(){
 		currentPage = "";
 		clearScreen(null);
@@ -178,18 +203,19 @@ public class Panel1 extends JPanel {
 		currentPage = "";
 		clearScreen(null);
 
-		incomePanel();
-		outcomePanel();
-
 		ButtonGroup buttonGroup = new ButtonGroup();
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
-
 
 		int userNum = 1;
 		for(User user: userList){
 			JRadioButton button = new JRadioButton();
 			button.setText(user.firstName + " " + user.lastName);
 			buttonGroup.add(button);
+			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			button.setBackground(Color.white);
+			button.setForeground(Color.black);
+			button.setFocusPainted(false);
 			button.setBounds(10, 20 + (userNum * 60), 200, 30);
 			button.addActionListener(e -> pickUser(user));
 			this.add(button);
@@ -215,29 +241,58 @@ public class Panel1 extends JPanel {
 			JRadioButton button = new JRadioButton();
 			button.setText(user.firstName + " " + user.lastName);
 			button.setBounds(10, 20 + (userNum * 60), 200, 30);
-			button.addActionListener(e -> userList.remove(user));
+			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			button.setBackground(Color.white);
+			button.setForeground(Color.black);
+			button.setFocusPainted(false);
+			button.addActionListener(e -> popUpScreen(user));
 			this.add(button);
 			userNum++;
 		}		
 		repaint();
+	}
+	public void popUpScreen(User user){
+		clearScreen(null);
+		makeLabel("Are You Sure?", 15, 400, 200, 200, 100, Color.white, Color.black, true);
+		makeButton("YES", 30, 400, 300, 90, 50, e -> removeUser(user));
+		makeButton("NO", 30, 510, 300, 90, 50, e-> deleteUser());
+	}
+	public void removeUser(User user){
+		userList.remove(user);
+		defaultPage();
 	}
 
 	public void addIncome(){
 		currentPage = "";
 
 		clearScreen(null);
-		makeTextField("Name Of Income", 10, 10, 10, 100, 50, Color.white, Color.black);
-		makeTextField("Amount Of Income", 10, 10, 60, 100, 50, Color.white, Color.black);
-		makeButton("Enter", 10, 10, 120, 100, 100, e -> currentUser.newIncome(textLabels.get("Name Of Income").getText(), Integer.parseInt(textLabels.get("Amount Of Income").getText()), "Null"));
+		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.black, false);
 
+		makeTextField("Name Of Income", 20, 10, 440, 100, 50, Color.white, Color.black);
+		makeTextField("Amount Of Income", 20, 120, 440, 100, 50, Color.white, Color.black);
 
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+		makeButton("Enter", 20, 230, 440, 100, 50, e -> addInO());
 
 		int userNum = 1;
+		int buttonX = 10;
 		for(Amount amount: currentUser.income){
 			JRadioButton button = new JRadioButton();
-			button.setText(amount.name + ": " + amount.amount);
-			button.setBounds(150, 20 + (userNum * 60), 200, 30);
+			button.setText(amount.name + " $" + amount.amount);
+			
+			if(userNum % 11 == 1 && userNum > 2)
+			{
+				buttonX += 201;
+				userNum -= 11;
+			}
+			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
+			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			button.setBackground(Color.white);
+			button.setForeground(Color.black);
+			button.setFocusPainted(false);			
 			button.addActionListener(e -> currentUser.removeIncome(amount));
 			this.add(button);
 			userNum++;
@@ -246,23 +301,55 @@ public class Panel1 extends JPanel {
 		repaint();
 	}
 
+	public void addInO(){
+		String temp = "";
+		int temp1 = 0;
+		try{
+			temp = textLabels.get("Name Of Income").getText();
+		 	temp1 = Integer.parseInt(textLabels.get("Amount Of Income").getText());
+			if(temp.length() > 0 ){
+				if(temp1> 0){
+				currentUser.newIncome(temp, temp1, "");
+				}
+			}
+			defaultPage();
+		}
+		catch (Exception e){
+			makeLabel("Please Enter Valid Information", 10, 10, 10, 10, 10, Color.black, Color.white, true);
+		}
+		
+	}
+
 	public void addOutcome(){
 		currentPage = "";
 
 		clearScreen(null);
 
-		makeTextField("Name Of Expense", 10, 10, 10, 100, 50, Color.white, Color.black);
-		makeTextField("Amount Of Expense", 10, 10, 60, 100, 50, Color.white, Color.black);
-		makeButton("Enter", 10, 10, 120, 100, 100, e -> currentUser.addOutcome(textLabels.get("Name Of Expense").getText(), Integer.parseInt(textLabels.get("Amount Of Expense").getText()), "Null"));
+		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.black, false);
 
+		makeTextField("Name Of Expense", 20, 10, 440, 100, 50, Color.white, Color.black);
+		makeTextField("Amount Of Expense", 20, 120, 440, 100, 50, Color.white, Color.black);
 
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
-
+		makeButton("Enter", 20, 230, 440, 100, 50, e ->  addOutO());
+			
 		int userNum = 1;
+		int buttonX = 10;
 		for(Amount amount: currentUser.outcome){
 			JRadioButton button = new JRadioButton();
-			button.setText(amount.name + ": " + amount.amount);
-			button.setBounds(150, 20 + (userNum * 60), 200, 30);
+			button.setText(amount.name + " $" + amount.amount);
+			if(userNum % 11 == 1 && userNum > 2)
+			{
+				buttonX += 201;
+				userNum -= 11;
+			}
+			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
+			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			button.setBackground(Color.white);
+			button.setForeground(Color.black);
+			button.setFocusPainted(false);
 			button.addActionListener(e -> currentUser.removeOutcome(amount));
 			this.add(button);
 			userNum++;
@@ -271,10 +358,37 @@ public class Panel1 extends JPanel {
 		repaint();
 	}
 
+	public void addOutO(){
+		String temp = "";
+		int temp1 = 0;
+		try{
+			temp = textLabels.get("Name Of Expense").getText();
+		 	temp1 = Integer.parseInt(textLabels.get("Amount Of Expense").getText());
+			 if(temp.length() > 0 ){
+				if(temp1> 0){
+					currentUser.addOutcome(temp, temp1, "");
+				}
+			}
+			defaultPage();
+		}
+		catch (Exception e){
+			makeLabel("Please Enter Valid Information", 10, 10, 10, 10, 10, Color.black, Color.white, true);
+		}
+		
+	}
+
+	public void calcHouseOut(){
+		double tmpAmount = 0;
+		for(Amount houseOut : houseOutcome){
+			tmpAmount += houseOut.amount;
+		}
+		householdOutcomePerWeek = tmpAmount;
+	}
 	public void addHouseOutcome(String name, int amount){
 		currentPage = "";
 
 		houseOutcome.add(new Amount(name, amount, "Null"));
+		calcHouseOut();
 	}
 	public void removeHouseOutcome(Amount amount){
 		houseOutcome.remove(amount);
@@ -284,7 +398,6 @@ public class Panel1 extends JPanel {
 		double tempAmount = 0;
 		for(Amount outcomeAmount : houseOutcome){
 			tempAmount += outcomeAmount.amount;
-			System.out.println(outcomeAmount.name + ": " + outcomeAmount.amount);
 		}
 		householdOutcomePerWeek = tempAmount;
 	}
@@ -294,16 +407,32 @@ public class Panel1 extends JPanel {
 
 		clearScreen(null);
 
-		makeTextField("Name Of Expense", 10, 10, 10, 100, 50, Color.white, Color.black);
-		makeTextField("Amount Of Expense", 10, 10, 60, 100, 50, Color.white, Color.black);
-		makeButton("Enter", 10, 10, 120, 100, 100, e -> addHouseOutcome(textLabels.get("Name Of Expense").getText(), Integer.parseInt(textLabels.get("Amount Of Expense").getText())));
-		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.black, false);
 
+		makeTextField("Name Of House Expense", 20, 10, 440, 100, 50, Color.white, Color.black);
+		makeTextField("Amount Of House Expense", 20, 120, 440, 100, 50, Color.white, Color.black);
+
+		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+		
+		makeButton("Enter", 20, 230, 440, 100, 50, e ->  addHouseO());
+		
 		int userNum = 1;
+		int buttonX = 10;
 		for(Amount amount: houseOutcome){
 			JRadioButton button = new JRadioButton();
-			button.setText(amount.name + ": " + amount.amount);
-			button.setBounds(150, 20 + (userNum * 60), 200, 30);
+			button.setText(amount.name + " $" + amount.amount);
+			if(userNum % 11 == 1 && userNum > 2)
+			{
+				buttonX += 201;
+				userNum -= 11;
+			}
+			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
+			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			button.setBackground(Color.white);
+			button.setForeground(Color.black);
+			button.setFocusPainted(false);
 			button.addActionListener(e -> houseOutcome.remove(amount));
 			this.add(button);
 			userNum++;
@@ -312,11 +441,31 @@ public class Panel1 extends JPanel {
 		repaint();
 	}
 
+	public void addHouseO(){
+		String temp = "";
+		int temp1 = 0;
+		try{
+			temp = textLabels.get("Name Of House Expense").getText();
+		 	temp1 = Integer.parseInt(textLabels.get("Amount Of House Expense").getText());
+			if(temp.length() > 0 ){
+				if(temp1> 0){
+					addHouseOutcome(temp, temp1);
+				}
+			}
+			defaultPage();
+		}
+		catch (Exception e){
+			makeLabel("Please Enter Valid Information", 10, 10, 10, 10, 10, Color.black, Color.white, true);
+		}
+		
+	}
+
 	public void incomePanel(){
 
 		int userNum = 1;
 		for(Amount amount : currentUser.income){
-			makeLabel("   " + amount.name + ": " + amount.amount, 20, 10, 55 + (userNum * 50), 300, 50, Color.green, Color.black, true);
+			if(userNum < 16)
+			makeLabel("   " + amount.name + " $" + amount.amount, 20, 10, 55 + (userNum * 25), 300, 25, Color.green, Color.black, true);
 			userNum++;
 		}
 		repaint();
@@ -325,7 +474,8 @@ public class Panel1 extends JPanel {
 	public void outcomePanel(){
 		int userNum = 1;
 		for(Amount amount : currentUser.outcome){
-			makeLabel("   " + amount.name + ": " + amount.amount, 20, 320, 55 + (userNum * 50), 300, 50, Color.red, Color.black, true);
+			if(userNum < 16)
+			makeLabel("   " + amount.name + " $" + amount.amount, 20, 320, 55 + (userNum * 25), 300, 25, Color.red, Color.black, true);
 			userNum++;
 		}
 		repaint();
@@ -334,7 +484,8 @@ public class Panel1 extends JPanel {
 	public void housePanel(){
 		int userNum = 1;
 		for(Amount amount : houseOutcome){
-			makeLabel("   " + amount.name + ": " + amount.amount, 20, 630, 55 + (userNum * 50), 150, 50, Color.red, Color.black, true);
+			if(userNum < 12)
+			makeLabel("   " + amount.name + " $" + amount.amount, 20, 630, 80 + (userNum * 25), 150, 25, Color.red, Color.black, true);
 			userNum++;
 		}
 		repaint();
@@ -347,5 +498,18 @@ public class Panel1 extends JPanel {
 
 	public void viewStats(){
 
+	}
+
+	public void currentUserIncomeTotal(){
+		currentUser.calcIncome();
+		if(currentUser.incomePerWeek > 0){
+		makeLabel("  Income Weekly: " + currentUser.incomePerWeek, 20, 10, 10, 300, 50, Color.green, Color.black, true);
+		}
+	}
+	public void currentUserOutcomeTotal(){
+		currentUser.calcOutcome();
+		if(currentUser.outcomePerWeek > 0){
+		makeLabel("  Outcome Weekly: " + currentUser.outcomePerWeek, 20, 320, 10, 300, 50, Color.red, Color.black, true);
+		}
 	}
 }
