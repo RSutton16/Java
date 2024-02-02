@@ -39,8 +39,11 @@ public class Panel1 extends JPanel {
 	JButton currentButtonPress = null;
 	String currentPage = " ";
 	Font customFont;
+	Font currentFont;
 	
 	Panel1() {
+		createCustomFont();
+		currentFont = customFont;
 		this.setPreferredSize(new Dimension(1000, 500));
 		this.setFocusable(true);
 		//homeScreen();
@@ -48,13 +51,15 @@ public class Panel1 extends JPanel {
 
 	}
 public void createCustomFont(){
-	try {
-    customFont = Font.createFont(Font.TRUETYPE_FONT, new File("CustomFont.ttf"));
+	try{
+	InputStream is = Panel1.class.getResourceAsStream("/PixelifySans-SemiBold.ttf");
+    customFont = Font.createFont(Font.TRUETYPE_FONT, is);
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("CustomFont.ttf")));
+    ge.registerFont(customFont);
 } catch (IOException | FontFormatException e) {
     e.printStackTrace();
 }
+
 }
 
     public BufferedImage loadImage(String path) {
@@ -91,12 +96,12 @@ public void createCustomFont(){
 	 * @param textColor
 	 * @param e
 	 */
-	public void makeButton(String text, int size, int x, int y, int width, int height, ActionListener e) {
+	public void makeButton(String text, float size, int x, int y, int width, int height, ActionListener e) {
 		JButton button = new JButton();
-		button.setText(text);
+		button.setText("<html>" + text  + "</html>");
 		button.setBounds(x, y, width, height);
-		button.setFont(customFont);
-		button.setBackground(Color.white);
+		Font sizedFont = currentFont.deriveFont(size);
+		button.setFont(sizedFont);		button.setBackground(Color.white);
 		button.setForeground(Color.black);
 		button.addActionListener(e);
 		button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
@@ -105,11 +110,12 @@ public void createCustomFont(){
 		this.add(button);
 	}
 	
-	public void makeLabel(String text, int size, int x, int y, int width, int height, Color backColor, Color textColor,boolean backgroundVisible){
+	public void makeLabel(String text, float size, int x, int y, int width, int height, Color backColor, Color textColor,boolean backgroundVisible){
 		JLabel label = new JLabel();
-		label.setText(text);
+		label.setText("<html>" + text  + "</html>");
 		label.setBounds(x, y, width, height);
-		label.setFont(new Font("Times New Roman", Font.BOLD, size));
+		Font sizedFont = currentFont.deriveFont(size);
+		label.setFont(sizedFont);		
 		label.setBackground(backColor);
 		label.setForeground(textColor);
 		label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
@@ -118,11 +124,12 @@ public void createCustomFont(){
 		this.add(label);
 	}
 	
-	public void makeTextField(String name, int size, int x, int y, int width, int height, Color backColor, Color textColor){
+	public void makeTextField(String name, float size, int x, int y, int width, int height, Color backColor, Color textColor){
 		JTextField textField = new JTextField();
-		textField.setName(name);
+		textField.setName("<html>" + name  + "</html>");
 		textField.setBounds(x, y, width, height);
-		textField.setFont(new Font("Times New Roman", Font.BOLD, size));
+		Font sizedFont = currentFont.deriveFont(size);
+		textField.setFont(sizedFont);
 		textField.setBackground(backColor);
 		textField.setForeground(textColor);
 		this.add(textField);
@@ -176,7 +183,7 @@ public void createCustomFont(){
 		makeButton("New User", 15, 890, 10, buttonSize, buttonSize, e -> newUser());
 		makeButton("Pick User", 15, 890, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> chooseUser());
 		makeButton("Delete User", 15, 890,  10 + buttonSize * 2 + sepAmo * 2, buttonSize, buttonSize, e -> deleteUser());
-		makeButton("View Stats", 15, 890, 10+ buttonSize * 3 + sepAmo * 3, buttonSize, buttonSize, e -> defaultPage());
+		makeButton("View Stats", 15, 890, 10+ buttonSize * 3 + sepAmo * 3, buttonSize, buttonSize, e -> changeFont());
 		
 		makeButton("Income", 15, 795, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> addIncome());
 		makeButton("Outcome", 15, 795,  10 + buttonSize * 2 + sepAmo * 2, buttonSize, buttonSize, e -> addOutcome());
@@ -196,8 +203,8 @@ public void createCustomFont(){
 		currentPage = "";
 		clearScreen(null);
 
-		makeLabel("First Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
-		makeLabel("Last Name", 15, 120,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("First Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
+		makeLabel("Last Name", 15, 120,400, 100, 50, Color.white, Color.white, false);
 
 		makeTextField("Enter First Name", 20, 10, 440, 100, 50, Color.white, Color.black);
 		makeTextField("Enter Last Name", 20, 120, 440, 100, 50, Color.white, Color.black);
@@ -219,16 +226,24 @@ public void createCustomFont(){
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
 
 		int userNum = 1;
+		int buttonX = 10;
+		float fontSize = 30;
 		for(User user: userList){
 			JRadioButton button = new JRadioButton();
 			button.setText(user.firstName + " " + user.lastName);
 			buttonGroup.add(button);
-			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			Font sizedFont = currentFont.deriveFont(fontSize);
+			button.setFont(sizedFont);
 			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 			button.setBackground(Color.white);
 			button.setForeground(Color.black);
 			button.setFocusPainted(false);
-			button.setBounds(10, 20 + (userNum * 60), 200, 30);
+			if(userNum % 10 == 1 && userNum > 2)
+			{
+				buttonX += 285;
+				userNum -= 10;
+			}
+			button.setBounds(buttonX, 20 + (userNum * 40), 280, 30);
 			button.addActionListener(e -> pickUser(user));
 			this.add(button);
 			userNum++;
@@ -249,11 +264,19 @@ public void createCustomFont(){
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
 
 		int userNum = 1;
+		int buttonX = 10;
+		float fontSize = 30;
 		for(User user: userList){
 			JRadioButton button = new JRadioButton();
 			button.setText(user.firstName + " " + user.lastName);
-			button.setBounds(10, 20 + (userNum * 60), 200, 30);
-			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			if(userNum % 10 == 1 && userNum > 2)
+			{
+				buttonX += 285;
+				userNum -= 10;
+			}
+			button.setBounds(buttonX, 20 + (userNum * 40), 280, 30);
+			Font sizedFont = currentFont.deriveFont(fontSize);
+			button.setFont(sizedFont);
 			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 			button.setBackground(Color.white);
 			button.setForeground(Color.black);
@@ -279,8 +302,8 @@ public void createCustomFont(){
 		currentPage = "";
 
 		clearScreen(null);
-		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
-		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
+		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.white, false);
 
 		makeTextField("Name Of Income", 20, 10, 440, 100, 50, Color.white, Color.black);
 		makeTextField("Amount Of Income", 20, 120, 440, 100, 50, Color.white, Color.black);
@@ -290,6 +313,7 @@ public void createCustomFont(){
 
 		int userNum = 1;
 		int buttonX = 10;
+		float fontSize = 30;
 		for(Amount amount: currentUser.income){
 			JRadioButton button = new JRadioButton();
 			button.setText(amount.name + " $" + amount.amount);
@@ -300,8 +324,8 @@ public void createCustomFont(){
 				userNum -= 11;
 			}
 			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
-			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
-			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			Font sizedFont = currentFont.deriveFont(fontSize);
+			button.setFont(sizedFont);			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 			button.setBackground(Color.white);
 			button.setForeground(Color.black);
 			button.setFocusPainted(false);			
@@ -337,8 +361,8 @@ public void createCustomFont(){
 
 		clearScreen(null);
 
-		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
-		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
+		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.white, false);
 
 		makeTextField("Name Of Expense", 20, 10, 440, 100, 50, Color.white, Color.black);
 		makeTextField("Amount Of Expense", 20, 120, 440, 100, 50, Color.white, Color.black);
@@ -348,6 +372,7 @@ public void createCustomFont(){
 			
 		int userNum = 1;
 		int buttonX = 10;
+		float fontSize = 30;
 		for(Amount amount: currentUser.outcome){
 			JRadioButton button = new JRadioButton();
 			button.setText(amount.name + " $" + amount.amount);
@@ -357,8 +382,8 @@ public void createCustomFont(){
 				userNum -= 11;
 			}
 			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
-			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
-			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			Font sizedFont = currentFont.deriveFont(fontSize);
+			button.setFont(sizedFont);			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 			button.setBackground(Color.white);
 			button.setForeground(Color.black);
 			button.setFocusPainted(false);
@@ -419,8 +444,8 @@ public void createCustomFont(){
 
 		clearScreen(null);
 
-		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.black, false);
-		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.black, false);
+		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
+		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.white, false);
 
 		makeTextField("Name Of House Expense", 20, 10, 440, 100, 50, Color.white, Color.black);
 		makeTextField("Amount Of House Expense", 20, 120, 440, 100, 50, Color.white, Color.black);
@@ -431,6 +456,7 @@ public void createCustomFont(){
 		
 		int userNum = 1;
 		int buttonX = 10;
+		float fontSize = 30;
 		for(Amount amount: houseOutcome){
 			JRadioButton button = new JRadioButton();
 			button.setText(amount.name + " $" + amount.amount);
@@ -440,8 +466,8 @@ public void createCustomFont(){
 				userNum -= 11;
 			}
 			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
-			button.setFont(new Font("Times New Roman", Font.BOLD, 30));
-			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			Font sizedFont = currentFont.deriveFont(fontSize);
+			button.setFont(sizedFont);			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 			button.setBackground(Color.white);
 			button.setForeground(Color.black);
 			button.setFocusPainted(false);
@@ -523,5 +549,21 @@ public void createCustomFont(){
 		if(currentUser.outcomePerWeek > 0){
 		makeLabel("  Outcome Weekly: " + currentUser.outcomePerWeek, 20, 320, 10, 300, 50, Color.red, Color.black, true);
 		}
+	}
+
+	public void changeFont(){
+		clearScreen(null);
+		makeButton("Arial", 20, 10, 10, 100, 40, e -> switchFont(new Font("arial", 1, 30)));
+		makeButton("Pixel", 20, 10, 60, 100, 40, e -> switchFont(customFont));
+		makeButton("Courier New", 15, 10, 110, 100, 40, e -> switchFont(new Font("Courier New", 1, 30)));
+		makeButton("Georgia", 20, 10, 160, 100, 40, e -> switchFont(new Font("Georgia", 1, 30)));
+
+
+
+		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+	}
+	public void switchFont(Font font){
+		currentFont = font;
+		defaultPage();
 	}
 }
