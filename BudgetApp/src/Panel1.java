@@ -1,10 +1,13 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.LayoutManager;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class Panel1 extends JPanel {
 	User currentUser = userList.get(0);
 	JButton currentButtonPress = null;
 	String currentPage = " ";
+	Font customFont;
 	
 	Panel1() {
 		this.setPreferredSize(new Dimension(1000, 500));
@@ -43,7 +47,15 @@ public class Panel1 extends JPanel {
 		defaultPage();
 
 	}
-
+public void createCustomFont(){
+	try {
+    customFont = Font.createFont(Font.TRUETYPE_FONT, new File("CustomFont.ttf"));
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("CustomFont.ttf")));
+} catch (IOException | FontFormatException e) {
+    e.printStackTrace();
+}
+}
 
     public BufferedImage loadImage(String path) {
         BufferedImage image = null;
@@ -83,7 +95,7 @@ public class Panel1 extends JPanel {
 		JButton button = new JButton();
 		button.setText(text);
 		button.setBounds(x, y, width, height);
-		button.setFont(new Font("Times New Roman", Font.BOLD, size));
+		button.setFont(customFont);
 		button.setBackground(Color.white);
 		button.setForeground(Color.black);
 		button.addActionListener(e);
