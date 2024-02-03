@@ -309,7 +309,12 @@ public void createCustomFont(){
 		makeTextField("Amount Of Income", 20, 120, 440, 100, 50, Color.white, Color.black);
 
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
-		makeButton("Enter", 20, 230, 440, 100, 50, e -> addInO());
+		makeButton("1 Week", 20, 230, 440, 100, 50, e -> addInO(1));
+		makeButton("2 Weeks", 20, 340, 440, 100, 50, e -> addInO(2));
+		makeButton("4 Weeks", 20, 450, 440, 100, 50, e -> addInO(4));
+		makeButton("26 Weeks", 20, 560, 440, 100, 50, e -> addInO(26));
+		makeButton("52 Weeks", 20, 670, 440, 100, 50, e -> addInO(52));
+
 
 		int userNum = 1;
 		int buttonX = 10;
@@ -337,7 +342,7 @@ public void createCustomFont(){
 		repaint();
 	}
 
-	public void addInO(){
+	public void addInO(int perHowManyWeeks){
 		String temp = "";
 		int temp1 = 0;
 		try{
@@ -345,7 +350,7 @@ public void createCustomFont(){
 		 	temp1 = Integer.parseInt(textLabels.get("Amount Of Income").getText());
 			if(temp.length() > 0 ){
 				if(temp1> 0){
-				currentUser.newIncome(temp, temp1, "");
+				currentUser.newIncome(temp, temp1 / perHowManyWeeks, "");
 				}
 			}
 			defaultPage();
@@ -368,8 +373,11 @@ public void createCustomFont(){
 		makeTextField("Amount Of Expense", 20, 120, 440, 100, 50, Color.white, Color.black);
 
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
-		makeButton("Enter", 20, 230, 440, 100, 50, e ->  addOutO());
-			
+		makeButton("1 Week", 20, 230, 440, 100, 50, e -> addOutO(1));
+		makeButton("2 Weeks", 20, 340, 440, 100, 50, e -> addOutO(2));
+		makeButton("4 Weeks", 20, 450, 440, 100, 50, e -> addOutO(4));
+		makeButton("26 Weeks", 20, 560, 440, 100, 50, e -> addOutO(26));
+		makeButton("52 Weeks", 20, 670, 440, 100, 50, e -> addOutO(52));			
 		int userNum = 1;
 		int buttonX = 10;
 		float fontSize = 30;
@@ -395,7 +403,7 @@ public void createCustomFont(){
 		repaint();
 	}
 
-	public void addOutO(){
+	public void addOutO(int perHowManyWeeks){
 		String temp = "";
 		int temp1 = 0;
 		try{
@@ -403,7 +411,7 @@ public void createCustomFont(){
 		 	temp1 = Integer.parseInt(textLabels.get("Amount Of Expense").getText());
 			 if(temp.length() > 0 ){
 				if(temp1> 0){
-					currentUser.addOutcome(temp, temp1, "");
+					currentUser.addOutcome(temp, temp1 / perHowManyWeeks, "");
 				}
 			}
 			defaultPage();
@@ -452,8 +460,12 @@ public void createCustomFont(){
 
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
 		
-		makeButton("Enter", 20, 230, 440, 100, 50, e ->  addHouseO());
-		
+		makeButton("1 Week", 20, 230, 440, 100, 50, e -> addHouseO(1));
+		makeButton("2 Weeks", 20, 340, 440, 100, 50, e -> addHouseO(2));
+		makeButton("4 Weeks", 20, 450, 440, 100, 50, e -> addHouseO(4));
+		makeButton("26 Weeks", 20, 560, 440, 100, 50, e -> addHouseO(26));
+		makeButton("52 Weeks", 20, 670, 440, 100, 50, e -> addHouseO(52));	
+
 		int userNum = 1;
 		int buttonX = 10;
 		float fontSize = 30;
@@ -479,7 +491,7 @@ public void createCustomFont(){
 		repaint();
 	}
 
-	public void addHouseO(){
+	public void addHouseO(int perHowManyWeeks){
 		String temp = "";
 		int temp1 = 0;
 		try{
@@ -487,7 +499,7 @@ public void createCustomFont(){
 		 	temp1 = Integer.parseInt(textLabels.get("Amount Of House Expense").getText());
 			if(temp.length() > 0 ){
 				if(temp1> 0){
-					addHouseOutcome(temp, temp1);
+					addHouseOutcome(temp, temp1 / perHowManyWeeks);
 				}
 			}
 			defaultPage();
