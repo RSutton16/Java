@@ -183,7 +183,7 @@ public void createCustomFont(){
 		makeButton("New User", 15, 890, 10, buttonSize, buttonSize, e -> newUser());
 		makeButton("Pick User", 15, 890, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> chooseUser());
 		makeButton("Delete User", 15, 890,  10 + buttonSize * 2 + sepAmo * 2, buttonSize, buttonSize, e -> deleteUser());
-		makeButton("View Stats", 15, 890, 10+ buttonSize * 3 + sepAmo * 3, buttonSize, buttonSize, e -> changeFont());
+		makeButton("Settings", 15, 890, 10+ buttonSize * 3 + sepAmo * 3, buttonSize, buttonSize, e -> settings());
 		
 		makeButton("Income", 15, 795, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> addIncome());
 		makeButton("Outcome", 15, 795,  10 + buttonSize * 2 + sepAmo * 2, buttonSize, buttonSize, e -> addOutcome());
@@ -546,7 +546,10 @@ public void createCustomFont(){
 		labelList.get("  " + currentUser.firstName.charAt(0) + ". " + currentUser.lastName).setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 	}
 
-	public void viewStats(){
+	public void settings(){
+		clearScreen(null);
+		makeButton("Change Font", 15, 10, 10, 100, 40, e -> changeFont());
+		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
 
 	}
 
@@ -569,10 +572,7 @@ public void createCustomFont(){
 		makeButton("Pixel", 20, 10, 60, 100, 40, e -> switchFont(customFont));
 		makeButton("Courier New", 15, 10, 110, 100, 40, e -> switchFont(new Font("Courier New", 1, 30)));
 		makeButton("Georgia", 20, 10, 160, 100, 40, e -> switchFont(new Font("Georgia", 1, 30)));
-
-
-
-		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+		makeButton("Back", 20, 890, 450, 100, 40, e -> settings());
 	}
 	public void switchFont(Font font){
 		currentFont = font;
