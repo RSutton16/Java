@@ -16,7 +16,6 @@ public class Frame extends JFrame{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.add(new Panel1());
 		this.pack();
-		this.setResizable(false);
 		this.setAlwaysOnTop(true);
 		this.setTitle("Budget 101");
 		this.setVisible(true);
