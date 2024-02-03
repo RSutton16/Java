@@ -96,9 +96,6 @@ public class Panel1 extends JPanel {
     public BufferedImage loadImage(String path) {
         BufferedImage image = null;
         try (InputStream is = getClass().getResourceAsStream(path)) {
-            if (is == null) {
-                throw new IOException("Resource not found: " + path);
-            }
        		image = ImageIO.read(is);
         } catch (IOException e) {
             e.printStackTrace();
@@ -169,7 +166,11 @@ public class Panel1 extends JPanel {
 		this.removeAll();
 		this.repaint();
 		this.setLayout(man);
+		currentUser.calcIncome();
+		currentUser.calcOutcome();
 		calcHouseOut();
+		calcHouseOutcome();
+		
 		calcRevenue();
 		int defUser = 0;
 		boolean isDefUser = false;
@@ -343,6 +344,7 @@ public class Panel1 extends JPanel {
 		currentPage = "";
 
 		clearScreen(null);
+		addCalc(790, 10);
 		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
 		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.white, false);
 
@@ -406,7 +408,7 @@ public class Panel1 extends JPanel {
 		currentPage = "";
 
 		clearScreen(null);
-
+		addCalc(790, 10);
 		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
 		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.white, false);
 
@@ -492,6 +494,7 @@ public class Panel1 extends JPanel {
 		currentPage = "";
 
 		clearScreen(null);
+		addCalc(790, 10);
 
 		makeLabel("Name", 15, 10,400, 100, 50, Color.white, Color.white, false);
 		makeLabel("Amount", 15, 120,400, 100, 50, Color.white, Color.white, false);
@@ -663,10 +666,51 @@ public class Panel1 extends JPanel {
 		if(currentUserRevenue < 0){
 			labelColor = Color.red;
 		}
-		makeLabel(currentUserRevenue + " ", 30, 795, 400, 180, 90, labelColor, Color.white, true);
+		if(!(currentUserRevenue == 0 && currentUser.incomePerWeek == 0 && currentUser.outcomePerWeek == 0 && householdOutcomePerWeek == 0)){
+		makeLabel(currentUser.firstName + " " + currentUser.lastName + " Revenue", 10, 795, 390, 180, 30, Color.white, Color.black, true);
+		makeLabel(currentUserRevenue + " ", 30, 795, 430, 180, 60, labelColor, Color.white, true);
+		}
 	}
 	
 	public void calcRevenue(){
 		currentUserRevenue = currentUser.incomePerWeek - currentUser.outcomePerWeek;
+	}
+
+	public void addCalc(int x, int y){
+		makeLabel("Calculator", 25, x, y, 205, 40, Color.white, Color.black, true);
+		labelList.get("Calculator").setHorizontalAlignment(JLabel.CENTER);
+		y+=25;
+		makeLabel("Enter Number", 17, x, y+25, 100, 40, Color.white, Color.black, true);
+		makeLabel("Enter Number", 17, x+105, y+25, 100, 40, Color.white, Color.black, true);
+		makeTextField("Num1", 20, x, y+70, 100, 40, Color.white, Color.black);
+		makeTextField("Num2", 20, x+105, y+70, 100, 40, Color.white, Color.black);
+		makeLabel("(+)(-)(*)(/)", 17, x, y + 115, 100, 30, Color.white, Color.black, true);
+		makeLabel("Result", 20, x +105, y + 115, 100, 30, Color.white, Color.black, true);
+
+		makeTextField("Operator",30, x, y+150, 100, 40, Color.white, Color.black);
+		makeButton("Enter", 20, x, y+200, 205, 30, e -> calcNums());
+		makeLabel("0.0", 20, x+105, y+150, 100, 40, Color.white, Color.black, true);
+	}
+
+	public void calcNums(){
+		double num1 = Double.parseDouble(textLabels.get("Num1").getText());
+		double num2 = Double.parseDouble(textLabels.get("Num2").getText());
+		String ope = textLabels.get("Operator").getText();
+		switch (ope){
+			case "+":
+			labelList.get("0.0").setText(num1 + num2 + "");
+			break;
+			case "-":
+			labelList.get("0.0").setText(num1 - num2 + "");
+			break;
+			case "*":
+			labelList.get("0.0").setText(num1 * num2 + "");
+
+			break;
+			case "/":
+			labelList.get("0.0").setText(num1 / num2 + "");
+
+			break;
+		}
 	}
 }
