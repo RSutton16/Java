@@ -26,29 +26,39 @@ import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.border.EtchedBorder;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.File;
+
 public class Panel1 extends JPanel {
 	public static ArrayList<User> userList = new ArrayList<>();
 	public Map<String, JTextField> textLabels = new HashMap<>();
 	public Map<String, JButton> buttonList = new HashMap<>();
 	public Map<String, JLabel> labelList = new HashMap<>();
-
-
+	public ArrayList<Clip> songList = new ArrayList<>();
 	public ArrayList<Amount> houseOutcome = new ArrayList<>();
-
 	public static double householdOutcomePerWeek = 0;
+
 	User currentUser = userList.get(0);
-	JButton currentButtonPress = null;
 	String currentPage = " ";
+	double currentUserRevenue = 0;
+	
 	Font customFont;
 	Font currentFont;
+	
 	Color retroColor = new Color(135, 54, 55);
 	Color backgroundColor = retroColor;
+
 	BufferedImage retro1Logo = loadImage("RRRPixel.png");
 	BufferedImage officeLogo = loadImage("OfficeLogo.png");
 	BufferedImage carsLogo = loadImage("carsLogo.png");
-
-
 	BufferedImage backgroundLogo = retro1Logo;
+	
+	Clip buttonSound = loadSound("BudgetApp/src/buttonClickSound.wav");
+	Clip bottleOpeningSound = loadSound("BudgetApp/src/openBottleSound.wav");
+	Clip retroButtonSound = loadSound("BudgetApp/src/bitButton.wav");
+	Clip currentClickSound = retroButtonSound;
 
 	
 	Panel1() {
@@ -58,32 +68,7 @@ public class Panel1 extends JPanel {
 		this.setFocusable(true);
 		homeScreen();
 		//defaultPage();
-
 	}
-public void createCustomFont(){
-	try{
-	InputStream is = Panel1.class.getResourceAsStream("/PixelifySans-SemiBold.ttf");
-    customFont = Font.createFont(Font.TRUETYPE_FONT, is);
-    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    ge.registerFont(customFont);
-} catch (IOException | FontFormatException e) {
-    e.printStackTrace();
-}
-
-}
-
-    public BufferedImage loadImage(String path) {
-        BufferedImage image = null;
-        try (InputStream is = getClass().getResourceAsStream(path)) {
-            if (is == null) {
-                throw new IOException("Resource not found: " + path);
-            }
-            image = ImageIO.read(is);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return image;
-    }
 
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -95,30 +80,62 @@ public void createCustomFont(){
 			g.drawImage(backgroundLogo, 300, 50, 400, 400, null);
 		}
 	}
+	
+	public void createCustomFont(){
+		try{
+		InputStream is = Panel1.class.getResourceAsStream("/PixelifySans-SemiBold.ttf");
+		customFont = Font.createFont(Font.TRUETYPE_FONT, is);
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		ge.registerFont(customFont);
+		} 
+		catch (IOException | FontFormatException e) {
+			e.printStackTrace();
+		}
+	}
 
-	/**
-	 * 
-	 * @param text
-	 * @param size
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 * @param backColor
-	 * @param textColor
-	 * @param e
-	 */
-	public void makeButton(String text, float size, int x, int y, int width, int height, ActionListener e) {
+    public BufferedImage loadImage(String path) {
+        BufferedImage image = null;
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is == null) {
+                throw new IOException("Resource not found: " + path);
+            }
+       		image = ImageIO.read(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
+    }
+
+	public Clip loadSound(String file) {
+		Clip clip = null;
+		try {
+			File audioFile = new File(file);
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			clip = AudioSystem.getClip();
+			clip.open(audioStream);
+		} catch (Exception e){
+		}
+		return clip; // Return the loaded clip or null if loading failed
+	}
+
+	public void playClick(){
+		currentClickSound.stop(); 
+		currentClickSound.setFramePosition(0);
+		currentClickSound.start(); 
+	}
+
+	public void makeButton(String text, float size, int x, int y, int width, int height, ActionListener d) {
 		JButton button = new JButton();
 		button.setText("<html>" + text  + "</html>");
 		button.setBounds(x, y, width, height);
 		Font sizedFont = currentFont.deriveFont(size);
 		button.setFont(sizedFont);		button.setBackground(Color.white);
 		button.setForeground(Color.black);
-		button.addActionListener(e);
+		button.addActionListener(d);
 		button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 		button.setFocusPainted(false);
 		buttonList.put(text, button);
+		button.addActionListener(e -> playClick());
 		this.add(button);
 	}
 	
@@ -153,6 +170,7 @@ public void createCustomFont(){
 		this.repaint();
 		this.setLayout(man);
 		calcHouseOut();
+		calcRevenue();
 		int defUser = 0;
 		boolean isDefUser = false;
 		for(User user : userList){
@@ -162,37 +180,40 @@ public void createCustomFont(){
 			}
 		}
 		
+		//creates user if none available
+		//gets rid of default user if there is another profile
+
 		if(userList.size() < 1){
 			currentUser = new User("Default", "User");
 		} else if(isDefUser && userList.size() > 1){
-			//gets rid of default user if there is another profile
 			userList.remove(userList.remove(defUser));
 		}
+		//switches user if the last one was deleted
 		if(!userList.contains(currentUser)){
 			currentUser = userList.get(0);
 		}
 		
 	}
 
+//this is the logo screen that plays
 	public void homeScreen() {
+		currentPage = "home";
 		clearScreen(null);
+
+		//starts animation and goes to default page when done
+		bottleOpeningSound.start();
 		Timer timer = new Timer(2000, e -> defaultPage());
 		timer.start();
 		timer.setRepeats(false);
-		
 
-		currentPage = "home";
-		
 		String gifPath = "introGif.gif";
 		URL gifURL = getClass().getResource(gifPath);
-    if (gifURL != null) {
-        ImageIcon icon = new ImageIcon(gifURL);
-        JLabel label = new JLabel(icon);
-        label.setBounds(0, 0, 1000, 500);
-        this.add(label);
-    } else {
-        System.out.println("GIF file not found: " + gifPath);
-    }
+
+		//adds gif to screen
+		ImageIcon icon = new ImageIcon(gifURL);
+		JLabel label = new JLabel(icon);
+		label.setBounds(0, 0, 1000, 500);
+		this.add(label);
 	}
 
 	public void defaultPage(){
@@ -207,6 +228,7 @@ public void createCustomFont(){
 		currentUserPanel();
 		currentUserIncomeTotal();
 		currentUserOutcomeTotal();
+		currentUserRevenue();
 
 		makeButton("New User", 15, 890, 10, buttonSize, buttonSize, e -> newUser());
 		makeButton("Pick User", 15, 890, 10 + buttonSize + sepAmo, buttonSize, buttonSize, e -> chooseUser());
@@ -218,15 +240,6 @@ public void createCustomFont(){
 		makeButton("House", 15, 795, 10+ buttonSize * 3 + sepAmo * 3, buttonSize, buttonSize, e -> addHouse());
 	}
 
-	
-
-	/**
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
 	public void newUser(){
 		currentPage = "";
 		clearScreen(null);
@@ -457,15 +470,15 @@ public void createCustomFont(){
 		}
 		householdOutcomePerWeek = tmpAmount;
 	}
+	
 	public void addHouseOutcome(String name, int amount){
 		currentPage = "";
 
 		houseOutcome.add(new Amount(name, amount, "Null"));
 		calcHouseOut();
 	}
-	public void removeHouseOutcome(Amount amount){
-		houseOutcome.remove(amount);
-	}
+	
+	
 	public void calcHouseOutcome(){
 
 		double tempAmount = 0;
@@ -486,28 +499,30 @@ public void createCustomFont(){
 		makeTextField("Name Of House Expense", 20, 10, 440, 100, 50, Color.white, Color.black);
 		makeTextField("Amount Of House Expense", 20, 120, 440, 100, 50, Color.white, Color.black);
 
-		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
-		
 		makeButton("1 Week", 20, 230, 440, 100, 50, e -> addHouseO(1));
 		makeButton("2 Weeks", 20, 340, 440, 100, 50, e -> addHouseO(2));
 		makeButton("4 Weeks", 20, 450, 440, 100, 50, e -> addHouseO(4));
 		makeButton("26 Weeks", 20, 560, 440, 100, 50, e -> addHouseO(26));
 		makeButton("52 Weeks", 20, 670, 440, 100, 50, e -> addHouseO(52));	
+		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
 
 		int userNum = 1;
 		int buttonX = 10;
 		float fontSize = 30;
+		
 		for(Amount amount: houseOutcome){
 			JRadioButton button = new JRadioButton();
 			button.setText(amount.name + " $" + amount.amount);
-			if(userNum % 11 == 1 && userNum > 2)
-			{
+			
+			if(userNum % 11 == 1 && userNum > 2){
 				buttonX += 201;
 				userNum -= 11;
 			}
+			
 			button.setBounds(buttonX, 10 + (userNum * 31), 200, 30);
 			Font sizedFont = currentFont.deriveFont(fontSize);
-			button.setFont(sizedFont);			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+			button.setFont(sizedFont);			
+			button.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 			button.setBackground(Color.white);
 			button.setForeground(Color.black);
 			button.setFocusPainted(false);
@@ -515,7 +530,6 @@ public void createCustomFont(){
 			this.add(button);
 			userNum++;
 		}
-		
 		repaint();
 	}
 
@@ -533,13 +547,11 @@ public void createCustomFont(){
 			defaultPage();
 		}
 		catch (Exception e){
-			makeLabel("Please Enter Valid Information", 10, 10, 10, 10, 10, Color.black, Color.white, true);
 		}
 		
 	}
 
 	public void incomePanel(){
-
 		int userNum = 1;
 		for(Amount amount : currentUser.income){
 			if(userNum < 16)
@@ -563,7 +575,7 @@ public void createCustomFont(){
 		int userNum = 1;
 		for(Amount amount : houseOutcome){
 			if(userNum < 12)
-			makeLabel("   " + amount.name + " $" + amount.amount, 20, 630, 80 + (userNum * 25), 150, 25, Color.red, Color.black, true);
+			makeLabel("   " + amount.name + " $" + amount.amount, 15, 630, 80 + (userNum * 25), 150, 25, Color.red, Color.black, true);
 			userNum++;
 		}
 		repaint();
@@ -587,40 +599,33 @@ public void createCustomFont(){
 		makeButton("Retro", 10, 10, 10, 100, 40, e -> setTTheme("retro"));
 		makeButton("Office", 10, 10, 60, 100, 40, e -> setTTheme("office"));
 		makeButton("Cars", 10, 10, 110, 100, 40, e -> setTTheme("cars"));
-
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
 	}
 	public void setTTheme(String theme){
 		switch (theme){
 			case "retro":
-			retroTheme();
-			break;
+				backgroundColor = retroColor;
+				backgroundLogo = retro1Logo;
+				currentFont = customFont;
+				currentClickSound = retroButtonSound;
+				break;
 			case "office":
-			officeTheme();
-			break;
+				backgroundColor = Color.lightGray;
+				backgroundLogo = officeLogo;
+				currentFont = new Font("Georgia", 1, 20);
+				currentClickSound = buttonSound;
+
+				break;
 			case "cars":
-			carsTheme();
-			break;
+				backgroundColor = Color.red;
+				backgroundLogo = carsLogo;
+				currentFont = new Font("Times New Roman", 1, 20);
+				currentClickSound = buttonSound;
+
+				break;
 		}
 		settings();
 	}
-	public void retroTheme(){
-		backgroundColor = retroColor;
-		backgroundLogo = retro1Logo;
-		currentFont = customFont;
-	}
-
-	public void officeTheme(){
-		backgroundColor = Color.lightGray;
-		backgroundLogo = officeLogo;
-		currentFont = new Font("Georgia", 1, 20);
-	}
-	public void carsTheme(){
-		backgroundColor = Color.red;
-		backgroundLogo = carsLogo;
-		currentFont = new Font("Times New Roman", 1, 20);
-	}
-
 
 
 	public void viewStats(){
@@ -651,5 +656,17 @@ public void createCustomFont(){
 	public void switchFont(Font font){
 		currentFont = font;
 		defaultPage();
+	}
+	
+	public void currentUserRevenue(){
+		Color labelColor = Color.green;
+		if(currentUserRevenue < 0){
+			labelColor = Color.red;
+		}
+		makeLabel(currentUserRevenue + " ", 30, 795, 400, 180, 90, labelColor, Color.white, true);
+	}
+	
+	public void calcRevenue(){
+		currentUserRevenue = currentUser.incomePerWeek - currentUser.outcomePerWeek;
 	}
 }
