@@ -7,9 +7,9 @@ import java.awt.GraphicsEnvironment;
 import java.awt.LayoutManager;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +17,13 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.border.EtchedBorder;
 
 public class Panel1 extends JPanel {
@@ -40,14 +41,23 @@ public class Panel1 extends JPanel {
 	String currentPage = " ";
 	Font customFont;
 	Font currentFont;
+	Color retroColor = new Color(135, 54, 55);
+	Color backgroundColor = retroColor;
+	BufferedImage retro1Logo = loadImage("RRRPixel.png");
+	BufferedImage officeLogo = loadImage("OfficeLogo.png");
+	BufferedImage carsLogo = loadImage("carsLogo.png");
+
+
+	BufferedImage backgroundLogo = retro1Logo;
+
 	
 	Panel1() {
 		createCustomFont();
 		currentFont = customFont;
 		this.setPreferredSize(new Dimension(1000, 500));
 		this.setFocusable(true);
-		//homeScreen();
-		defaultPage();
+		homeScreen();
+		//defaultPage();
 
 	}
 public void createCustomFont(){
@@ -78,10 +88,12 @@ public void createCustomFont(){
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.setColor(Color.black);
+		g.setColor(backgroundColor);
+			
+			if(currentPage != "home"){
 			g.fillRect(0, 0, this.getWidth(), this.getHeight());
-			g.drawImage(loadImage("RRRPixel.png"), 300, 50, 400, 400, null);
-		
+			g.drawImage(backgroundLogo, 300, 50, 400, 400, null);
+		}
 	}
 
 	/**
@@ -164,7 +176,23 @@ public void createCustomFont(){
 
 	public void homeScreen() {
 		clearScreen(null);
-		makeButton("Get Started", 20, 0, 0, 200, 150, e -> defaultPage());
+		Timer timer = new Timer(2000, e -> defaultPage());
+		timer.start();
+		timer.setRepeats(false);
+		
+
+		currentPage = "home";
+		
+		String gifPath = "introGif.gif";
+		URL gifURL = getClass().getResource(gifPath);
+    if (gifURL != null) {
+        ImageIcon icon = new ImageIcon(gifURL);
+        JLabel label = new JLabel(icon);
+        label.setBounds(0, 0, 1000, 500);
+        this.add(label);
+    } else {
+        System.out.println("GIF file not found: " + gifPath);
+    }
 	}
 
 	public void defaultPage(){
@@ -549,8 +577,54 @@ public void createCustomFont(){
 	public void settings(){
 		clearScreen(null);
 		makeButton("Change Font", 15, 10, 10, 100, 40, e -> changeFont());
+		makeButton("Change Theme", 15, 10, 60, 100, 40, e -> setTheme());
 		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+		makeButton("View Stats", 15, 10, 110, 100, 40, e -> viewStats());
+	}
 
+	public void setTheme(){
+		clearScreen(null);
+		makeButton("Retro", 10, 10, 10, 100, 40, e -> setTTheme("retro"));
+		makeButton("Office", 10, 10, 60, 100, 40, e -> setTTheme("office"));
+		makeButton("Cars", 10, 10, 110, 100, 40, e -> setTTheme("cars"));
+
+		makeButton("Back", 20, 890, 450, 100, 40, e -> defaultPage());
+	}
+	public void setTTheme(String theme){
+		switch (theme){
+			case "retro":
+			retroTheme();
+			break;
+			case "office":
+			officeTheme();
+			break;
+			case "cars":
+			carsTheme();
+			break;
+		}
+		settings();
+	}
+	public void retroTheme(){
+		backgroundColor = retroColor;
+		backgroundLogo = retro1Logo;
+		currentFont = customFont;
+	}
+
+	public void officeTheme(){
+		backgroundColor = Color.lightGray;
+		backgroundLogo = officeLogo;
+		currentFont = new Font("Georgia", 1, 20);
+	}
+	public void carsTheme(){
+		backgroundColor = Color.red;
+		backgroundLogo = carsLogo;
+		currentFont = new Font("Times New Roman", 1, 20);
+	}
+
+
+
+	public void viewStats(){
+		
 	}
 
 	public void currentUserIncomeTotal(){

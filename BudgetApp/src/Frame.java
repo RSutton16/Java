@@ -1,10 +1,18 @@
-import javax.swing.ImageIcon;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 public class Frame extends JFrame{
 	Frame(){
-		ImageIcon image = new ImageIcon("RRRPixel.png");
-		this.setIconImage(image.getImage());
+		try {
+            Image image = ImageIO.read(new File("BudgetApp/src/mainLogo.png"));
+            this.setIconImage(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.add(new Panel1());
 		this.pack();
