@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 public class Frame extends JFrame{
 	Frame(){
 		try {
-            Image image = ImageIO.read(new File("BudgetApp/src/mainLogo.png"));
+            Image image = ImageIO.read(new File("BudgetApp\\res\\mainLogo.png"));
             this.setIconImage(image);
         } catch (IOException e) {
             e.printStackTrace();
