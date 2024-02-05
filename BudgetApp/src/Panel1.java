@@ -40,35 +40,32 @@ public class Panel1 extends JPanel {
 	public ArrayList<Amount> houseOutcome = new ArrayList<>();
 	public static double householdOutcomePerWeek = 0;
 
-	User currentUser;
+	User currentUser = userList.get(0);
 	String currentPage = " ";
 	double currentUserRevenue = 0;
 	
-	Font pixelFont;
+	Font customFont;
 	Font currentFont;
 	
 	Color retroColor = new Color(135, 54, 55);
 	Color backgroundColor = retroColor;
+	
+	String addressPixel = "/zPixelifySans-SemiBold.ttf";
 
-	String openingGif = "BudgetApp\\res\\IntroGif.gif";
-	String pixelFontAddress = "BudgetApp\\res\\PixelifySans-SemiBold.ttf";
-
-	BufferedImage retro1Logo = loadImage("BudgetApp\\res\\RRRPixel.png");
-	BufferedImage officeLogo = loadImage("BudgetApp\\res\\OfficeLogo.png");
-	BufferedImage carsLogo = loadImage("BudgetApp\\res\\carsLogo.png");
+	BufferedImage retro1Logo = loadImage("zRRRPixel.png");
+	BufferedImage officeLogo = loadImage("zOfficeLogo.png");
+	BufferedImage carsLogo = loadImage("zcarsLogo.png");
 	BufferedImage backgroundLogo = retro1Logo;
 	
-	Clip buttonSound = loadSound("BudgetApp\\res\\buttonClickSound.wav");
-	Clip bottleOpeningSound = loadSound("BudgetApp\\res\\openBottleSound.wav");
-	Clip retroButtonSound = loadSound("BudgetApp\\res\\bitButton.wav");
+	Clip buttonSound = loadSound("BudgetApp/src/zbuttonClickSound.wav");
+	Clip bottleOpeningSound = loadSound("BudgetApp/src/zopenBottleSound.wav");
+	Clip retroButtonSound = loadSound("BudgetApp/src/zbitButton.wav");
 	Clip currentClickSound = retroButtonSound;
 
 	
 	Panel1() {
-		
-		currentUser = userList.get(0);
-		makePixelFont();
-		currentFont = pixelFont;
+		createCustomFont();
+		currentFont = customFont;
 		this.setPreferredSize(new Dimension(1000, 500));
 		this.setFocusable(true);
 		homeScreen();
@@ -86,47 +83,46 @@ public class Panel1 extends JPanel {
 		}
 	}
 	
-	public void makePixelFont(){
-    try {
-        InputStream is = Panel1.class.getResourceAsStream("/res/PixelifySans-SemiBold.ttf");
-        pixelFont = Font.createFont(Font.TRUETYPE_FONT, is);
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        ge.registerFont(pixelFont);
-    } catch (IOException | FontFormatException e) {
-        e.printStackTrace();
-    }
-}
+	public void createCustomFont(){
+		try{
+		InputStream is = Panel1.class.getResourceAsStream(addressPixel);
+		customFont = Font.createFont(Font.TRUETYPE_FONT, is);
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		ge.registerFont(customFont);
+		} 
+		catch (IOException | FontFormatException e) {
+			e.printStackTrace();
+		}
+	}
 
-public BufferedImage loadImage(String path) {
-	try {
-        InputStream is = getClass().getResourceAsStream(path);
-        if (is == null) {
-            throw new IllegalArgumentException("Cannot find resource: " + path);
+    public BufferedImage loadImage(String path) {
+        BufferedImage image = null;
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+       		image = ImageIO.read(is);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return ImageIO.read(is);
-    } catch (IOException e) {
-        e.printStackTrace();
-        throw new RuntimeException("Failed to load image: " + path, e);
+        return image;
     }
-}
 
-public Clip loadSound(String path) {
-    Clip clip = null;
-    try {
-        InputStream audioStream = Panel1.class.getResourceAsStream(path);
-        AudioInputStream ais = AudioSystem.getAudioInputStream(audioStream);
-        clip = AudioSystem.getClip();
-        clip.open(ais);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return clip; // Return the loaded clip or null if loading failed
-}
-public void playClick(){
-	currentClickSound.stop(); 
-	currentClickSound.setFramePosition(0);
-	currentClickSound.start(); 
-}
+	public Clip loadSound(String file) {
+		Clip clip = null;
+		try {
+			File audioFile = new File(file);
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			clip = AudioSystem.getClip();
+			clip.open(audioStream);
+		} catch (Exception e){
+		}
+		return clip; // Return the loaded clip or null if loading failed
+	}
+
+	public void playClick(){
+		currentClickSound.stop(); 
+		currentClickSound.setFramePosition(0);
+		currentClickSound.start(); 
+	}
+
 	public void makeButton(String text, float size, int x, int y, int width, int height, ActionListener d) {
 		JButton button = new JButton();
 		button.setText("<html>" + text  + "</html>");
@@ -213,7 +209,8 @@ public void playClick(){
 		timer.start();
 		timer.setRepeats(false);
 
-		URL gifURL = getClass().getResource(openingGif);
+		String gifPath = "zintroGif.gif";
+		URL gifURL = getClass().getResource(gifPath);
 
 		//adds gif to screen
 		ImageIcon icon = new ImageIcon(gifURL);
@@ -614,7 +611,7 @@ public void playClick(){
 			case "retro":
 				backgroundColor = retroColor;
 				backgroundLogo = retro1Logo;
-				currentFont = pixelFont;
+				currentFont = customFont;
 				currentClickSound = retroButtonSound;
 				break;
 			case "office":
@@ -656,7 +653,7 @@ public void playClick(){
 	public void changeFont(){
 		clearScreen(null);
 		makeButton("Arial", 20, 10, 10, 100, 40, e -> switchFont(new Font("arial", 1, 30)));
-		makeButton("Pixel", 20, 10, 60, 100, 40, e -> switchFont(pixelFont));
+		makeButton("Pixel", 20, 10, 60, 100, 40, e -> switchFont(customFont));
 		makeButton("Courier New", 15, 10, 110, 100, 40, e -> switchFont(new Font("Courier New", 1, 30)));
 		makeButton("Georgia", 20, 10, 160, 100, 40, e -> switchFont(new Font("Georgia", 1, 30)));
 		makeButton("Back", 20, 890, 450, 100, 40, e -> settings());
