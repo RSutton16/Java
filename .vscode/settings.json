@@ -1,5 +1,7 @@
 {
     "java.project.sourcePaths": [
+        "StatBaseball2/src",
         "BudgetApp/src",
+        "StatBaseball2"
     ]
 }
