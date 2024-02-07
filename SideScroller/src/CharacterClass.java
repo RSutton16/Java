@@ -28,6 +28,7 @@ public class CharacterClass{
             break;
             case CROUCHING:
                 xChangeVelocity(crouchSpeed);
+            break;
             case WALKING:
                 xChangeVelocity(walkSpeed);
             break;
