@@ -12,7 +12,7 @@ public class CharacterClass{
     private boolean jumping = false;
     
     public void update(){
-    xCommonds();
+    xCommands();
     yCommands();
     }
     public void draw(){
@@ -21,7 +21,7 @@ public class CharacterClass{
     public void control(){
 
     }
-    private void xCommonds(){
+    private void xCommands(){
         switch (currentAction){
             case IDLE:
                 xChangeVelocity(0);
