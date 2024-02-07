@@ -54,11 +54,4 @@ public class CharacterClass{
         }
     }
 
-    private void idle(){
-
-    }
-    private void jump(){
-        
-    }
-
 }
