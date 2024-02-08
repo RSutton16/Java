@@ -11,7 +11,7 @@ public class Panel extends JPanel{
 
 
     PlayerClass testPlay = new PlayerClass(1, 1, 1, 1, 100,
-     100, 50, 50, 87, 83, 
+     100, 87, 83, 
      16, 68, 65);
     Input input;
 
@@ -27,6 +27,7 @@ public class Panel extends JPanel{
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         testPlay.draw(g);
+        
         for (Object object : objectCollision) {
             object.draw(g);
         }

@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -14,40 +15,45 @@ public class CharacterClass{
     public double stamina;
     private double maxStamina;
     private double xPos, yPos, width, height;
-    private double xVelocityChanger = .5;
+    private double xVelocityChanger = .05;
     private double yVelocityChanger = .6;
-    private double walkSpeed = 3;
+    private double walkSpeed = 1;
     private double crouchSpeed = .5;
-    private double runSpeed = 5;
+    private double runSpeed = 3;
     private charActionSheet currentAction = charActionSheet.IDLE;
     private boolean jumping = false;
     private double jumpHeight = this.yPos - 50;
     private charDirectionSheet currentDirection = charDirectionSheet.RIGHT;
     private Rectangle charCollision;
+    //private ArrayList<BufferedImage> jumpAnim = new ArrayList<>();
+    private ArrayList<BufferedImage> idleAnim = new ArrayList<>();
     private ArrayList<BufferedImage> walkAnim = new ArrayList<>();
     private ArrayList<BufferedImage> runAnim = new ArrayList<>();
-    private ArrayList<BufferedImage> jumpAnim = new ArrayList<>();
-    private ArrayList<BufferedImage> crouchAnim = new ArrayList<>();
-    private ArrayList<BufferedImage> idleAnim = new ArrayList<>();
 
-    private ArrayList<BufferedImage> currentAnimation = walkAnim;
-    private Image img;
+    private BufferedImage charSpriteImage;
+    private ArrayList<BufferedImage> currentAnimation;
 
 
-    public CharacterClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos, double width, double height){
+    public CharacterClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos){
         this.health = health;
         this.maxHealth = maxHealth;
         this.stamina = stamina;
         this.maxHealth = maxHealth;
         this.xPos = xPos;
         this.yPos = yPos;
-        this.width = width;
-        this.height = height;
+        this.width = 48;
+        this.height = 96;
         charCollision = new Rectangle();
-        loadAnimations("Woodcutter_idle.png", 1, 4, 1, 40, 40, idleAnim);
+        loadAnimations("Woodcutter_idle.png",4, idleAnim);
+        loadAnimations("Woodcutter_walk.png",6, walkAnim);
+        loadAnimations("Woodcutter_run.png",6, runAnim);
+
+        currentAnimation = walkAnim;
+
+
     }
     
-    private int animNumber = 1;
+    private double animNumber = 1;
     public void update(){
         updateCollisionBox();
         xCommands();
@@ -56,7 +62,7 @@ public class CharacterClass{
 
 
         if(animNumber + 1 < currentAnimation.size()){
-            animNumber ++;
+            animNumber += .05;
         } else {
             animNumber = 0;
         }
@@ -65,8 +71,13 @@ public class CharacterClass{
 
 
     public void draw(Graphics g){
-        g.drawImage(currentAnimation.get(animNumber), 10, 10, (int)width, (int)height, null);
-        g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
+        if(charDirectionSheet.LEFT == currentDirection){
+            g.drawImage(currentAnimation.get((int)animNumber), (int)this.xPos + (int)this.width, (int)this.yPos, ((int)width + 32) * -1, (int)height, null);
+        } else {       
+            g.drawImage(currentAnimation.get((int)animNumber), (int)this.xPos, (int)this.yPos, (int)width + 32, (int)height, null);
+        }        
+    
+    //g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
     }
 
     public void updateCollisionBox(){
@@ -96,15 +107,19 @@ public class CharacterClass{
         switch (currentAction){
             case IDLE:
                 xChangeVelocity(0);
+                currentAnimation = idleAnim;
             break;
             case CROUCHING:
                 xChangeVelocity(crouchSpeed);
+                currentAnimation = walkAnim;
             break;
             case WALKING:
                 xChangeVelocity(walkSpeed);
+                currentAnimation = walkAnim;
             break;
             case RUNNING:
                 xChangeVelocity(runSpeed);
+                currentAnimation = runAnim;
             break;
         }
         this.xPos += xVelocity;
@@ -144,10 +159,10 @@ public class CharacterClass{
         }
     }
 
-    private void loadAnimations(String path, int colStart, int amount, int rowNum, int width, int height, ArrayList<BufferedImage> list){
+    private void loadAnimations(String path, int amount, ArrayList<BufferedImage> list){
         InputStream is = getClass().getResourceAsStream(path);
         try{
-            img = ImageIO.read(is);
+            charSpriteImage = ImageIO.read(is);
 
         } catch (IOException e ){
             e.printStackTrace();
@@ -160,8 +175,8 @@ public class CharacterClass{
 
             }
 
-        for(int i = colStart; i < amount; i++){
-            list.add(new BufferedImage(50,50).getSubimage(i * width - width, rowNum * 32 - 32, width, height));
+        for(int i = 1; i < amount; i++){
+            list.add(charSpriteImage.getSubimage(i * 48 - 48, 16, 48, 32));
         }
     }
 

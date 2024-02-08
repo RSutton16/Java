@@ -8,9 +8,8 @@ public class PlayerClass extends CharacterClass{
     public boolean jumpKeyPressed = false;
     public boolean crouchKeyPressed = false;
 
-    public PlayerClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos, double width,
-            double height, int keyCodeJump, int keyCodeCrouch, int keyCodeSprint, int keyCodeRight, int keyCodeLeft) {
-        super(health, maxHealth, stamina, maxStamina, xPos, yPos, width, height);
+    public PlayerClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos, int keyCodeJump, int keyCodeCrouch, int keyCodeSprint, int keyCodeRight, int keyCodeLeft) {
+        super(health, maxHealth, stamina, maxStamina, xPos, yPos);
                 this.keyCodeCrouch = keyCodeCrouch;
                 this.keyCodeJump = keyCodeJump;
                 this.keyCodeLeft = keyCodeLeft;
