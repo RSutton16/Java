@@ -18,8 +18,6 @@ public class CharacterClass{
     private charDirectionSheet currentDirection = charDirectionSheet.RIGHT;
     private Rectangle charCollision;
 
-    //charCollision = new Rectangle();
-    //add that to array of all objects to check collision 
     public CharacterClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos, double width, double height){
         this.health = health;
         this.maxHealth = maxHealth;
@@ -29,20 +27,27 @@ public class CharacterClass{
         this.yPos = yPos;
         this.width = width;
         this.height = height;
+        charCollision = new Rectangle();
     }
     
     public void update(){
-    System.out.println(xVelocity);
-    System.out.println(currentAction);
-    xCommands();
-    //yCommands();
-    restoreHealth();
+        updateCollisionBox();
+        xCommands();
+        yCommands();
+        restoreHealth();
     }
 
 
 
     public void draw(Graphics g){
         g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
+    }
+
+    public void updateCollisionBox(){
+        this.charCollision.x = (int)this.xPos;
+        this.charCollision.y = (int)this.yPos;
+        this.charCollision.width = (int)this.width;
+        this.charCollision.height = (int)this.height;
     }
 
     public void changeAction(charActionSheet action){
@@ -81,15 +86,25 @@ public class CharacterClass{
 
     public void jump(){
         jumpHeight = this.yPos - 50;
+        jumping = true;
     }
 
     private void yCommands(){
-        if(!jumping){
-            //gravity
-            this.yPos -= yVelocityChanger;
-        } else if (yPos > jumpHeight){
-            this.yPos += yVelocityChanger;
+        boolean collision = false;
+        for (Object object : Panel.objectCollision) {
+            if(object.getRect().intersects(charCollision)){
+                collision = true;
+                yPos = object.getY() - height;
+            }
         }
+
+        if(!collision){
+            if(jumping){
+                yPos += yVelocityChanger;
+            } else {
+                yPos += yVelocityChanger;
+            }
+        } 
     }
 
     private void xChangeVelocity(double xWantedVelo){

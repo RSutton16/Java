@@ -81,5 +81,9 @@ public class PlayerClass extends CharacterClass{
             changeAction(charActionSheet.CROUCHING);
         }
 
+        if(jumpKeyPressed){
+            jump();
+        }
+
     }
 }
