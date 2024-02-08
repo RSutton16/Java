@@ -2,7 +2,11 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 public class CharacterClass{
     private int health, maxHealth;
     private double xVelocity, yVelocity;
@@ -27,6 +31,7 @@ public class CharacterClass{
     private ArrayList<BufferedImage> idleAnim = new ArrayList<>();
 
     private ArrayList<BufferedImage> currentAnimation = walkAnim;
+    private Image img;
 
 
     public CharacterClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos, double width, double height){
@@ -39,7 +44,7 @@ public class CharacterClass{
         this.width = width;
         this.height = height;
         charCollision = new Rectangle();
-        loadAnimations(null, 0, 1, 32, 32, null);
+        loadAnimations("Woodcutter_idle.png", 1, 4, 1, 40, 40, idleAnim);
     }
     
     private int animNumber = 1;
@@ -50,7 +55,6 @@ public class CharacterClass{
         restoreHealth();
 
 
-        currentAnimation.get(animNumber);
         if(animNumber + 1 < currentAnimation.size()){
             animNumber ++;
         } else {
@@ -61,6 +65,7 @@ public class CharacterClass{
 
 
     public void draw(Graphics g){
+        g.drawImage(currentAnimation.get(animNumber), 10, 10, (int)width, (int)height, null);
         g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
     }
 
@@ -139,10 +144,24 @@ public class CharacterClass{
         }
     }
 
-    private void loadAnimations(String path, int amount, int rowNum, int width, int height, ArrayList<Image> list){
-        BufferedImage image = new BufferedImage(width, height, 0);
-        for(int i = 1; i < amount; i++){
-            list.add(image.getSubimage(i * width - width, rowNum * 32 - 32, width, height));
+    private void loadAnimations(String path, int colStart, int amount, int rowNum, int width, int height, ArrayList<BufferedImage> list){
+        InputStream is = getClass().getResourceAsStream(path);
+        try{
+            img = ImageIO.read(is);
+
+        } catch (IOException e ){
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
+            }
+
+        for(int i = colStart; i < amount; i++){
+            list.add(new BufferedImage(50,50).getSubimage(i * width - width, rowNum * 32 - 32, width, height));
         }
     }
 
