@@ -17,8 +17,10 @@ public class PlayerClass extends CharacterClass{
                 this.keyCodeRight = keyCodeRight;
                 
                 newAnimation(charActionSheet.IDLE, "Woodcutter_idle.png", 4);
-                newAnimation(charActionSheet.WALKING, "Woodcutter_walk.png", 4);
-                newAnimation(charActionSheet.RUNNING, "Woodcutter_run.png", 4);
+                newAnimation(charActionSheet.WALKING, "Woodcutter_walk.png", 6);
+                newAnimation(charActionSheet.CROUCHING, "Woodcutter_jump.png", 6);
+                newAnimation(charActionSheet.RUNNING, "Woodcutter_run.png", 6);
+
     }
     
     public void buttonClicked(KeyEvent e){

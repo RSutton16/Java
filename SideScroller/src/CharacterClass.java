@@ -21,9 +21,12 @@ public class CharacterClass{
     private double runSpeed = 3;
     private charActionSheet currentAction = charActionSheet.IDLE;
     private boolean jumping = false;
+    private boolean inAir = false;
+    private boolean onGround = true;
     private double jumpHeight;
     private double animNumber = 1;
     private double animSpeed = .05;
+    private double gravityStrength = 2;
     private charDirectionSheet currentDirection = charDirectionSheet.RIGHT;
     private Rectangle charCollision;
     private ArrayList<BufferedImage> currentAnimation = null;
@@ -39,6 +42,7 @@ public class CharacterClass{
         this.width = 48;
         this.height = 96;
         charCollision = new Rectangle();
+       
     }
     
     public void update(){
@@ -52,6 +56,13 @@ public class CharacterClass{
         } else {
             animNumber = 0;
         }
+        if(health < maxHealth){
+            if(yVelocity > speedMultiplyer){
+                if(maxStamina > jumpHeight){
+                    System.out.println(" ");
+                }
+            }
+        }
     }
 
     public void draw(Graphics g){
@@ -61,7 +72,7 @@ public class CharacterClass{
         } else {       
             g.drawImage(currentAnimation.get((int)animNumber), (int)this.xPos, (int)this.yPos, (int)width + 32, (int)height, null);
         }        
-    //g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
+    g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
     }
 
     public void updateCollisionBox(){
@@ -95,7 +106,7 @@ public class CharacterClass{
             break;
             case CROUCHING:
                 xChangeVelocity(crouchSpeed);
-                currentAnimation = animationMap.get(charActionSheet.WALKING);
+                currentAnimation = animationMap.get(charActionSheet.CROUCHING);
             break;
             case WALKING:
                 xChangeVelocity(walkSpeed);
@@ -106,6 +117,7 @@ public class CharacterClass{
                 currentAnimation = animationMap.get(charActionSheet.RUNNING);
             break;
         }
+        if(!isObjectX())
         this.xPos += xVelocity;
     }
 
@@ -126,26 +138,16 @@ public class CharacterClass{
     }
 
     public void jump(){
-        jumpHeight = this.yPos - 50;
-        jumping = true;
+        
     }
 
     private void yCommands(){
-        boolean collision = false;
-        for (Object object : Panel.objectCollision) {
-            if(object.getRect().intersects(charCollision)){
-                collision = true;
-                yPos = object.getY() - height;
-            }
-        }
-
-        if(!collision){
-            if(jumping){
-                yPos += yVelocityChanger;
-            } else {
-                yPos += yVelocityChanger;
-            }
+        if(yVelocity < gravityStrength){
+            yVelocity += yVelocityChanger;
         } 
+        if(!isObjectY()){
+            yPos += yVelocity;
+        }
     }
 
     public void newAnimation(charActionSheet action, String path, int pictureAmount){
@@ -153,22 +155,57 @@ public class CharacterClass{
         InputStream is = getClass().getResourceAsStream(path);
         try{
             BufferedImage charSpriteSheet = ImageIO.read(is);
-            for(int i = 1; i < pictureAmount; i++){
-                images.add(charSpriteSheet.getSubimage(i * 48 - 48, 16, 48, 32));
+            for(int i = 0; i < pictureAmount; i++){
+                images.add(charSpriteSheet.getSubimage(i * 48, 16, 48, 32));
             }
             animationMap.put(action, images);
+        
         } catch (IOException e ){
             e.printStackTrace();
         } finally {
             try {
+                if(!(is == null))
                 is.close();
             } catch (IOException e){
                 e.printStackTrace();
             }
 
-            }
-
-        
+        }
     }
 
+    public boolean isObjectY(){
+        charCollision.y += yVelocity;
+        if(charCollision.y < 0 || charCollision.y > 500 - this.height){
+            yPos -= yVelocity;
+            yVelocity = 0;
+            return true;
+        }
+
+        for (Object object : Panel.objectCollision) {
+            if(object.getRect().intersects(charCollision)){
+                yPos -= yVelocity;
+                yVelocity = 0;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isObjectX(){
+        charCollision.x += xVelocity;
+        if(charCollision.x < 0 || charCollision.x > 1000 - this.width){
+            xPos -= xVelocity;
+            xVelocity = 0;
+            return true;
+        }
+
+        for (Object object : Panel.objectCollision) {
+            if(object.getRect().intersects(charCollision)){
+                xPos -= xVelocity;
+                xVelocity = 0;
+                return true;
+            }
+        }
+        return false;
+    }
 }
