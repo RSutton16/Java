@@ -3,8 +3,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-
-
 public class Panel extends JPanel{
     Game game;
     public static ArrayList<Object> objectCollision = new ArrayList<>();

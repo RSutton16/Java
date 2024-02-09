@@ -1,11 +1,10 @@
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 public class CharacterClass{
@@ -22,17 +21,13 @@ public class CharacterClass{
     private double runSpeed = 3;
     private charActionSheet currentAction = charActionSheet.IDLE;
     private boolean jumping = false;
-    private double jumpHeight = this.yPos - 50;
+    private double jumpHeight;
+    private double animNumber = 1;
+    private double animSpeed = .05;
     private charDirectionSheet currentDirection = charDirectionSheet.RIGHT;
     private Rectangle charCollision;
-    //private ArrayList<BufferedImage> jumpAnim = new ArrayList<>();
-    private ArrayList<BufferedImage> idleAnim = new ArrayList<>();
-    private ArrayList<BufferedImage> walkAnim = new ArrayList<>();
-    private ArrayList<BufferedImage> runAnim = new ArrayList<>();
-
-    private BufferedImage charSpriteImage;
-    private ArrayList<BufferedImage> currentAnimation;
-
+    private ArrayList<BufferedImage> currentAnimation = null;
+    private HashMap<charActionSheet, ArrayList<BufferedImage>> animationMap = new HashMap<>();
 
     public CharacterClass(int health, int maxHealth, int stamina, int maxStamina, double xPos, double yPos){
         this.health = health;
@@ -44,39 +39,28 @@ public class CharacterClass{
         this.width = 48;
         this.height = 96;
         charCollision = new Rectangle();
-        loadAnimations("Woodcutter_idle.png",4, idleAnim);
-        loadAnimations("Woodcutter_walk.png",6, walkAnim);
-        loadAnimations("Woodcutter_run.png",6, runAnim);
-
-        currentAnimation = walkAnim;
-
-
     }
     
-    private double animNumber = 1;
     public void update(){
         updateCollisionBox();
         xCommands();
         yCommands();
         restoreHealth();
 
-
-        if(animNumber + 1 < currentAnimation.size()){
-            animNumber += .05;
+        if(animNumber < currentAnimation.size() - 1){
+            animNumber += animSpeed;
         } else {
             animNumber = 0;
         }
     }
 
-
-
     public void draw(Graphics g){
+        if(currentAnimation != null)
         if(charDirectionSheet.LEFT == currentDirection){
             g.drawImage(currentAnimation.get((int)animNumber), (int)this.xPos + (int)this.width, (int)this.yPos, ((int)width + 32) * -1, (int)height, null);
         } else {       
             g.drawImage(currentAnimation.get((int)animNumber), (int)this.xPos, (int)this.yPos, (int)width + 32, (int)height, null);
         }        
-    
     //g.drawRect((int)this.xPos, (int)this.yPos, (int)this.width, (int)this.height);
     }
 
@@ -107,22 +91,38 @@ public class CharacterClass{
         switch (currentAction){
             case IDLE:
                 xChangeVelocity(0);
-                currentAnimation = idleAnim;
+                currentAnimation = animationMap.get(charActionSheet.IDLE);
             break;
             case CROUCHING:
                 xChangeVelocity(crouchSpeed);
-                currentAnimation = walkAnim;
+                currentAnimation = animationMap.get(charActionSheet.WALKING);
             break;
             case WALKING:
                 xChangeVelocity(walkSpeed);
-                currentAnimation = walkAnim;
+                currentAnimation = animationMap.get(charActionSheet.WALKING);
             break;
             case RUNNING:
                 xChangeVelocity(runSpeed);
-                currentAnimation = runAnim;
+                currentAnimation = animationMap.get(charActionSheet.RUNNING);
             break;
         }
         this.xPos += xVelocity;
+    }
+
+    private void xChangeVelocity(double xWantedVelo){
+        if(currentDirection == charDirectionSheet.LEFT)
+            xWantedVelo *= -1;
+        
+        //gets rid of annoying "stick drift" feeling when you stop moving
+        if(xWantedVelo == 0){
+            this.xVelocity = (int)xVelocity;
+        }
+
+        if (xVelocity > xWantedVelo){
+            this.xVelocity -= xVelocityChanger;
+        } else if (xVelocity < xWantedVelo){
+            this.xVelocity += xVelocityChanger;
+        }
     }
 
     public void jump(){
@@ -148,22 +148,15 @@ public class CharacterClass{
         } 
     }
 
-    private void xChangeVelocity(double xWantedVelo){
-        if(currentDirection == charDirectionSheet.LEFT)
-            xWantedVelo *= -1;
-
-        if (xVelocity > xWantedVelo){
-            this.xVelocity -= xVelocityChanger;
-        } else if (xVelocity < xWantedVelo){
-            this.xVelocity += xVelocityChanger;
-        }
-    }
-
-    private void loadAnimations(String path, int amount, ArrayList<BufferedImage> list){
+    public void newAnimation(charActionSheet action, String path, int pictureAmount){
+        ArrayList<BufferedImage> images = new ArrayList<>();
         InputStream is = getClass().getResourceAsStream(path);
         try{
-            charSpriteImage = ImageIO.read(is);
-
+            BufferedImage charSpriteSheet = ImageIO.read(is);
+            for(int i = 1; i < pictureAmount; i++){
+                images.add(charSpriteSheet.getSubimage(i * 48 - 48, 16, 48, 32));
+            }
+            animationMap.put(action, images);
         } catch (IOException e ){
             e.printStackTrace();
         } finally {
@@ -175,9 +168,7 @@ public class CharacterClass{
 
             }
 
-        for(int i = 1; i < amount; i++){
-            list.add(charSpriteImage.getSubimage(i * 48 - 48, 16, 48, 32));
-        }
+        
     }
 
 }

@@ -15,11 +15,12 @@ public class PlayerClass extends CharacterClass{
                 this.keyCodeLeft = keyCodeLeft;
                 this.keyCodeSprint = keyCodeSprint;
                 this.keyCodeRight = keyCodeRight;
-
+                
+                newAnimation(charActionSheet.IDLE, "Woodcutter_idle.png", 4);
+                newAnimation(charActionSheet.WALKING, "Woodcutter_walk.png", 4);
+                newAnimation(charActionSheet.RUNNING, "Woodcutter_run.png", 4);
     }
-     
-   
-
+    
     public void buttonClicked(KeyEvent e){
         int code = e.getKeyCode();
         if(code == keyCodeJump){
@@ -36,7 +37,6 @@ public class PlayerClass extends CharacterClass{
         controller();
     }
     
-
     public void buttonUnClicked(KeyEvent e){
         int code = e.getKeyCode();
         if(code == keyCodeJump){
@@ -54,10 +54,8 @@ public class PlayerClass extends CharacterClass{
         }    
         controller();
     }
- 
 
-
-    public void controller(){
+    private void controller(){
         if(leftKeyPressed && !rightKeyPressed){
             changeDirection(charDirectionSheet.LEFT);
             changeSpeeds();
@@ -69,8 +67,6 @@ public class PlayerClass extends CharacterClass{
         }
     }
         
-
-
     private void changeSpeeds(){
         if(!sprintKeyPressed && !crouchKeyPressed){
             changeAction(charActionSheet.WALKING);
@@ -83,6 +79,5 @@ public class PlayerClass extends CharacterClass{
         if(jumpKeyPressed){
             jump();
         }
-
     }
 }
