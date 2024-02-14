@@ -1,8 +1,8 @@
 {
     "java.project.sourcePaths": [
-        "BudgetApp/src",
+        //"SideScroller/src/1 Woodcutter",
         //"SideScroller/src",
-       // "SideScroller/src/1 Woodcutter"
-        
+        "BudgetApp2/BudgetApp2/src"
+
     ]
 }
