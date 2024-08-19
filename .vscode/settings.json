@@ -1,8 +1,9 @@
 {
     "java.project.sourcePaths": [
-        "SideScroller/src",
-        "Pong/src",
-        "BudgetApp/src",
-        "TicTacToe/src"
+        //"TicTacToe/src",
+        //"SideScroller/src",
+        //"Pong/src",
+        //"BudgetApp/src",
+        "Budget2/src"
     ],
 }
